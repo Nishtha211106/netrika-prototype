@@ -1,62 +1,51 @@
-%% ===== generateReport.m =====
-% Run this AFTER runQualityPipeline.m has completed
-% Requires: quality_report.csv, borderline_comparison.png, gradeable_comparison.png
+%% ===== generateReport_simple.m (no toolbox needed, fixed for numeric classes) =====
 
-import mlreportgen.report.*
-import mlreportgen.dom.*
-
-% Load results from CSV (so this script works independently)
 results = readtable('quality_report.csv');
-
 numGradeable  = sum(results.Status == "gradeable");
 numBorderline = sum(results.Status == "borderline");
 numReject     = sum(results.Status == "reject");
-classNames = unique(results.Class);
 
-rpt = Report('QualityAssessmentReport', 'pdf');
+classNames = unique(results.Class);   % works whether numeric or string
 
-% Title page
-tp = TitlePage('Title', 'Netrika: Image Quality Assessment Report', ...
-    'Subtitle', 'Preprocessing Stage Summary');
-add(rpt, tp);
-add(rpt, TableOfContents);
+fig = figure('Visible','off', 'Position', [0 0 800 1000]);
 
-% Chapter 1: Overview
-ch1 = Chapter('Title', 'Overview');
-add(ch1, Paragraph(sprintf('Total images processed: %d', height(results))));
-add(ch1, Paragraph(sprintf('Gradeable (light enhancement): %d', numGradeable)));
-add(ch1, Paragraph(sprintf('Borderline (full enhancement): %d', numBorderline)));
-add(ch1, Paragraph(sprintf('Rejected (recapture needed): %d', numReject)));
-add(rpt, ch1);
+annotation('textbox', [0.1 0.9 0.8 0.08], 'String', ...
+    'Netrika: Image Quality Assessment Report', ...
+    'FontSize', 16, 'FontWeight', 'bold', 'EdgeColor', 'none', 'HorizontalAlignment','center');
 
-% Chapter 2: Per-Class Breakdown Table
-ch2 = Chapter('Title', 'Per-Class Quality Breakdown');
-classTableData = {'Class', 'Gradeable', 'Borderline', 'Reject'};
+summaryText = sprintf(['Total images: %d\n' ...
+    'Gradeable: %d\nBorderline: %d\nRejected: %d'], ...
+    height(results), numGradeable, numBorderline, numReject);
+annotation('textbox', [0.1 0.75 0.8 0.12], 'String', summaryText, ...
+    'FontSize', 11, 'EdgeColor', 'none');
+
+classText = "Per-Class Breakdown:" + newline;
 for c = 1:numel(classNames)
-    classResults = results(results.Class == classNames{c}, :);
-    classTableData = [classTableData; {
-        char(classNames{c}), ...
-        num2str(sum(classResults.Status == "gradeable")), ...
-        num2str(sum(classResults.Status == "borderline")), ...
-        num2str(sum(classResults.Status == "reject"))
-    }];
+    thisClass = classNames(c);   % NOTE: () not {} - works for numeric or string
+    cr = results(results.Class == thisClass, :);
+    classText = classText + sprintf('Class %s: %d gradeable, %d borderline, %d reject\n', ...
+        string(thisClass), sum(cr.Status=="gradeable"), sum(cr.Status=="borderline"), sum(cr.Status=="reject"));
 end
-tbl = Table(classTableData);
-tbl.Style = {Border('solid'), ColSep('solid'), RowSep('solid')};
-add(ch2, tbl);
-add(rpt, ch2);
+annotation('textbox', [0.1 0.55 0.8 0.18], 'String', classText, ...
+    'FontSize', 10, 'EdgeColor', 'none');
 
-% Chapter 3: Enhancement Visual Evidence
-ch3 = Chapter('Title', 'Enhancement Results');
-if numBorderline > 0 && exist('borderline_comparison.png', 'file')
-    add(ch3, Heading2('Borderline Images: Before vs After'));
-    add(ch3, Image('borderline_comparison.png'));
-end
-if numGradeable > 0 && exist('gradeable_comparison.png', 'file')
-    add(ch3, Heading2('Gradeable Images: Before vs After (Light Enhancement)'));
-    add(ch3, Image('gradeable_comparison.png'));
-end
-add(rpt, ch3);
+exportgraphics(fig, 'QualityAssessmentReport.pdf', 'ContentType', 'vector');
+close(fig);
 
-close(rpt);
+if exist('borderline_comparison.png', 'file')
+    fig2 = figure('Visible','off');
+    imshow(imread('borderline_comparison.png'));
+    title('Borderline: Before vs After');
+    exportgraphics(fig2, 'QualityAssessmentReport.pdf', 'Append', true);
+    close(fig2);
+end
+
+if exist('gradeable_comparison.png', 'file')
+    fig3 = figure('Visible','off');
+    imshow(imread('gradeable_comparison.png'));
+    title('Gradeable: Before vs After');
+    exportgraphics(fig3, 'QualityAssessmentReport.pdf', 'Append', true);
+    close(fig3);
+end
+
 fprintf('Report generated: QualityAssessmentReport.pdf\n');
