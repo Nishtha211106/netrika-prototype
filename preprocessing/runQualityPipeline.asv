@@ -1,6 +1,6 @@
 %% ===== runQualityPipeline.m (5-class version) =====
 
-imds = imageDatastore('../sorted_dataset', ...
+imds = imageDatastore('../data/sample_images', ...
     'IncludeSubfolders', true, 'LabelSource', 'foldernames');
 
 fprintf('Found %d images across %d classes\n', numel(imds.Files), numel(categories(imds.Labels)));
@@ -80,34 +80,16 @@ for c = 1:numel(classNames)
 end
 
 % ===== Visualizations =====
-% ===== Visualizations =====
-% ===== Visualizations (capped for large batches) =====
-maxVisualize = 10;   % show at most 10 examples per category in the report
-
 if numBorderline > 0
-    showCount = min(numBorderline, maxVisualize);
-    figure('Visible','off');
-    montage(borderlinePairs(1:showCount*2), 'Size', [showCount, 2]);
-    title(sprintf('BORDERLINE (showing %d of %d): Left = Original | Right = Enhanced', ...
-        showCount, numBorderline));
-    saveas(gcf, 'borderline_comparison.png');
-    close(gcf);
-else
-    disp('No borderline images to visualize.');
+    figure;
+    montage(borderlinePairs, 'Size', [numBorderline, 2]);
+    title('BORDERLINE: Left = Original | Right = Enhanced');
 end
 
 if numGradeable > 0
-    showCount = min(numGradeable, maxVisualize);
-    figure('Visible','off');
-    montage(gradeablePairs(1:showCount*2), 'Size', [showCount, 2]);
-    title(sprintf('GRADEABLE (showing %d of %d): Left = Original | Right = Lightly Enhanced', ...
-        showCount, numGradeable));
-    saveas(gcf, 'gradeable_comparison.png');
-    close(gcf);
-else
-    disp('No gradeable images to visualize.');
+    figure;
+    montage(gradeablePairs, 'Size', [numGradeable, 2]);
+    title('GRADEABLE: Left = Original | Right = Lightly Enhanced');
 end
 
 disp('Done!');
-
-QualityAssessmentReport;   % <-- NEW: automatically builds the PDF report
