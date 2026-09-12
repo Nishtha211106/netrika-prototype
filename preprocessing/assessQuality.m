@@ -22,7 +22,7 @@ function quality = assessQuality(img)
 
     if focusScore > 3 && illumOK && fovOK
         quality.status = 'gradeable';
-    elseif focusScore > 1
+    elseif focusScore > 0.45   % lowered from 1 → catches more as borderline instead of reject
         quality.status = 'borderline';
     else
         quality.status = 'reject';
