@@ -5,6 +5,8 @@ import ImageUploader from '../../components/screening/ImageUploader.jsx'
 import PatientSummary from '../../components/screening/PatientSummary.jsx'
 import WorkflowStepper from '../../components/screening/WorkflowStepper.jsx'
 
+import { analyzeImage } from '../../services/api.js'
+
 const demoPatient = {
   id: 'PT-DEMO-2048',
   name: 'Demo Patient',
@@ -18,6 +20,8 @@ function ScreeningWorkspace() {
   const screeningId = id || 'NR-DEMO-1042'
   const [selectedFile, setSelectedFile] = useState(null)
   const [stage, setStage] = useState('patient')
+  const [analysisResult, setAnalysisResult] = useState(null)
+  const [analysisError, setAnalysisError] = useState('')
 
   const isQualityStage = stage === 'quality'
 
@@ -95,7 +99,17 @@ function ScreeningWorkspace() {
               <button
                 type="button"
                 disabled={!selectedFile}
-                onClick={() => setStage('quality')}
+                onClick={async () => {
+                  setStage('quality')
+                  setAnalysisResult(null)
+                  setAnalysisError('')
+                  try {
+                    const result = await analyzeImage(selectedFile)
+                    setAnalysisResult(result)
+                  } catch (err) {
+                    setAnalysisError(err.message)
+                  }
+                }}
                 className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md px-5 py-3 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#0F8F87] focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#D6E8E6] disabled:text-[#617589] enabled:bg-[#0F8F87] enabled:text-white enabled:hover:bg-[#08746E]"
               >
                 Continue to Quality Check
@@ -120,9 +134,24 @@ function ScreeningWorkspace() {
             </div>
             <div className="px-5 py-8 sm:px-6">
               <div className="flex flex-col items-center rounded-xl border border-dashed border-[#D6E8E6] bg-[#F7FAFA] px-6 py-12 text-center">
-                <LoaderCircle aria-hidden="true" className="text-[#0F8F87]" size={30} />
-                <p className="mt-5 rounded-md bg-[#E7F5F3] px-3 py-1.5 text-xs font-semibold text-[#08746E]">DEMO/PROTOTYPE · No quality scoring is connected</p>
-                <p className="mt-4 max-w-md text-sm leading-6 text-[#617589]">A future quality service will assess the selected image here. No clinical threshold or result is being calculated.</p>
+                {analysisResult ? (
+                  <>
+                    <p className="rounded-md bg-[#E7F5F3] px-3 py-1.5 text-xs font-semibold text-[#08746E]">Analysis complete</p>
+                    <p className="mt-4 text-sm text-[#263B4D]">Reports generated for this image:</p>
+                    <a href={`file://${analysisResult.doctor_report}`} className="mt-2 text-sm font-semibold text-[#0F8F87] underline">Doctor Report</a>
+                    <a href={`file://${analysisResult.patient_report}`} className="mt-1 text-sm font-semibold text-[#0F8F87] underline">Patient Report</a>
+                  </>
+                ) : analysisError ? (
+                  <>
+                    <p className="rounded-md bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600">Analysis failed</p>
+                    <p className="mt-4 max-w-md text-sm leading-6 text-[#617589]">{analysisError}</p>
+                  </>
+                ) : (
+                  <>
+                    <LoaderCircle aria-hidden="true" className="text-[#0F8F87]" size={30} />
+                    <p className="mt-5 rounded-md bg-[#E7F5F3] px-3 py-1.5 text-xs font-semibold text-[#08746E]">Analyzing...</p>
+                  </>
+                )}
                 <button type="button" onClick={() => setStage('upload')} className="mt-6 inline-flex items-center gap-2 rounded-md border border-[#D6E8E6] bg-white px-4 py-2.5 text-sm font-semibold text-[#0F8F87] hover:border-[#0F8F87] focus:outline-none focus:ring-2 focus:ring-[#0F8F87] focus:ring-offset-2">
                   <ArrowLeft aria-hidden="true" size={16} />
                   Back to Image Upload
