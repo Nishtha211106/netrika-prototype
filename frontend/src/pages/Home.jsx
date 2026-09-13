@@ -1,3 +1,4 @@
+
 import {
   Accessibility,
   ArrowRight,
@@ -16,6 +17,8 @@ import {
   Zap,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import retinalImage from '../../images/diabetic-retinopathy-causes-symptoms-treatments.jpg'
+import detectionImage from '../../images/symptoms-and-detection.webp'
 
 const projectMetrics = [
   { value: '2,40,000+', label: 'Diabetes patients screened' },
@@ -142,7 +145,13 @@ function Home() {
             </div>
             <p className="mt-3 inline-flex rounded-md bg-[#E7F5F3] px-2.5 py-1 text-xs font-medium text-[#0F8F87]">Prototype data · illustrative only</p>
           </div>
-          <FundusVisual />
+          <div className="relative mx-auto w-full max-w-[25rem] overflow-hidden rounded-full border-[1.5rem] border-[#E7F5F3] shadow-[0_20px_60px_rgba(7,21,47,0.14)] sm:border-[2rem]">
+  <img
+    src={retinalImage}
+    alt="Retinal image for diabetic retinopathy screening"
+    className="aspect-square h-full w-full object-cover"
+  />
+</div>
         </div>
       </section>
 
@@ -180,7 +189,15 @@ function Home() {
 
       <section className="bg-white px-5 py-20 sm:px-8 lg:py-28">
         <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2 lg:gap-20">
-          <div className="order-2 lg:order-1"><FundusVisual heatmap /></div>
+        <div className="order-2 lg:order-1">
+  <div className="overflow-hidden rounded-2xl border border-[#D6E8E6] bg-white shadow-[0_12px_40px_rgba(7,21,47,0.08)]">
+    <img
+      src={detectionImage}
+      alt="Diabetic retinopathy symptoms and detection"
+      className="h-full w-full object-cover"
+    />
+  </div>
+</div>
           <div className="order-1 lg:order-2">
             <SectionIntro align="left" eyebrow="Explainable AI" title="See what the AI sees" description="Netrika can use visual heatmaps to show retinal regions influencing the assessment. This frontend representation is ready for future model-connected evidence." />
             <div className="mt-8 grid grid-cols-2 gap-3">
