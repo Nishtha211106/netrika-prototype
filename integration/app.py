@@ -15,11 +15,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Portable paths — works on any machine, no hardcoded username
 INTEGRATION_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def find_matlab_exe():
-    # Looks for any MATLAB version installed under Program Files
     candidates = glob.glob(r"C:\Program Files\MATLAB\*\bin\matlab.exe")
     if not candidates:
         raise FileNotFoundError("MATLAB installation not found under C:\\Program Files\\MATLAB\\")

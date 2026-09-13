@@ -138,8 +138,8 @@ function ScreeningWorkspace() {
                   <>
                     <p className="rounded-md bg-[#E7F5F3] px-3 py-1.5 text-xs font-semibold text-[#08746E]">Analysis complete</p>
                     <p className="mt-4 text-sm text-[#263B4D]">Reports generated for this image:</p>
-                    <a href={`file://${analysisResult.doctor_report}`} className="mt-2 text-sm font-semibold text-[#0F8F87] underline">Doctor Report</a>
-                    <a href={`file://${analysisResult.patient_report}`} className="mt-1 text-sm font-semibold text-[#0F8F87] underline">Patient Report</a>
+                    <a href={`http://localhost:5000/reports/${analysisResult.doctor_report}`} target="_blank" rel="noopener noreferrer" className="mt-2 text-sm font-semibold text-[#0F8F87] underline">Doctor Report</a>
+                    <a href={`http://localhost:5000/reports/${analysisResult.patient_report}`} target="_blank" rel="noopener noreferrer" className="mt-1 text-sm font-semibold text-[#0F8F87] underline">Patient Report</a>
                   </>
                 ) : analysisError ? (
                   <>
